@@ -14,32 +14,21 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                python3 -m venv venv
-                bash -c "source venv/bin/activate && pip install -r requirements.txt"
-                '''
-            }
-        }
-
-        stage('Run Tests') {   
-            steps {
-                sh '''
-                python3 -m venv venv
-                bash -c "source venv/bin/activate && pip install -r requirements.txt"
-                '''
-            }
-        }
-
         stage('Terraform Init & Plan') {
             steps {
                 script {
-                    sh 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID'
-                    sh 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY'
-                    sh 'export AWS_REGION=$AWS_REGION'
-                    sh 'terraform init'
-                    sh 'terraform plan'
+                    withCredentials([
+                        string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_REGION=$AWS_REGION
+                        terraform init
+                        terraform plan
+                        '''
+                    }
                 }
             }
         } 
@@ -47,23 +36,19 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
-                    sh 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID'
-                    sh 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY'
-                    sh 'export AWS_REGION=$AWS_REGION'
-                    sh 'terraform apply -auto-approve'
-                }
-            }
-        } 
-
-        stage('Deploy API to EC2') {
-            steps {
-                sshagent(credentials: ['chioma_keypair']) {
-                    sh '''
-                    scp -r * ubuntu@18.175.114.52:/var/www/api
-                    ssh ubuntu@18.175.114.52 "sudo systemctl restart flask-api"
-                    '''
+                    withCredentials([
+                        string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_REGION=$AWS_REGION
+                        terraform apply -auto-approve
+                        '''
+                    }
                 }
             }
         }
-    } 
+    }
 }
