@@ -31,22 +31,19 @@ pipeline {
         }
 
         stage('Terraform Init & Plan') {
-            steps {
-                sh '''
-                cd FlaskApp_Api
-                terraform init
-                terraform plan
-                '''
-            }
+              steps {
+        script {
+            sh 'ls -l'  // Debugging: List all files in the workspace
+            sh 'terraform init'
+            sh 'terraform plan'
+        }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh '''
-                cd FlaskApp_Api
-                terraform apply -auto-approve
-                '''
-            }
+        script {
+            sh 'terraform apply -auto-approve'
+        }
         }
 
         stage('Deploy API to EC2') {
