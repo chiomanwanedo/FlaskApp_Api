@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {   # 🔥 ERROR WAS HERE (missing "steps" block)
+        stage('Run Tests') {   
             steps {
                 sh '''
                 source venv/bin/activate
