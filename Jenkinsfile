@@ -33,7 +33,7 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 sh '''
-                cd terraform
+                cd rest_api
                 terraform init
                 terraform plan
                 '''
