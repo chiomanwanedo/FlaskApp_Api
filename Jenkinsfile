@@ -22,9 +22,15 @@ pipeline {
         }
 
         stage('Run Tests') {
-            steps {
-                sh 'pytest'
-            }
+           stage('Run Tests') {
+    steps {
+        sh '''
+        source venv/bin/activate
+        pytest
+        '''
+    }
+}
+
         }
 
         stage('Terraform Init & Plan') {
