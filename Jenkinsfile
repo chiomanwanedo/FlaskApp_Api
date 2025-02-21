@@ -22,12 +22,12 @@ pipeline {
         }
 
         stage('Run Tests') {   
-            steps {
-                sh '''
-                source venv/bin/activate
-                pytest
-                '''
-            }
+             steps {
+        sh '''
+        python3 -m venv venv
+        bash -c "source venv/bin/activate && pip install -r requirements.txt"
+        '''
+    }
         }
 
         stage('Terraform Init & Plan') {
