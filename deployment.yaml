@@ -1,0 +1,56 @@
+---
+- name: Deploy Flask API
+  hosts: api_server
+  become: true
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - git
+        state: present
+        update_cache: true
+
+    - name: Clone Flask API repository
+      ansible.builtin.git:
+        repo: "https://github.com/rahulwagh/python-mysql-db-proj-1.git"
+        dest: /opt/api
+        version: main
+
+    - name: Create a Python virtual environment
+      ansible.builtin.command:
+        cmd: python3 -m venv /opt/api/venv
+        creates: /opt/api/venv
+
+    - name: Install API dependencies in virtual environment
+      ansible.builtin.pip:
+        requirements: /opt/api/requirements.txt
+        virtualenv: /opt/api/venv
+
+    - name: Create a systemd service file for Flask API
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/flask-api.service
+        content: |
+          [Unit]
+          Description=Flask API Service
+          After=network.target
+
+          [Service]
+          User=ubuntu
+          WorkingDirectory=/opt/api
+          ExecStart=/opt/api/venv/bin/python3 /opt/api/app.py
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Enable and start Flask API service
+      ansible.builtin.systemd:
+        name: flask-api
+        state: started
+        enabled: true
