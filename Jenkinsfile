@@ -13,24 +13,22 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-           steps {
-        sh '''
-        python3 -m venv venv
-        bash -c "source venv/bin/activate && pip install -r requirements.txt"
-        '''
-    }
+            steps {
+                sh '''
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install -r requirements.txt
+                '''
+            }
         }
 
-        stage('Run Tests') {
-           stage('Run Tests') {
-    steps {
-        sh '''
-        source venv/bin/activate
-        pytest
-        '''
-    }
-}
-
+        stage('Run Tests') {   # 🔥 ERROR WAS HERE (missing "steps" block)
+            steps {
+                sh '''
+                source venv/bin/activate
+                pytest
+                '''
+            }
         }
 
         stage('Terraform Init & Plan') {
@@ -55,8 +53,10 @@ pipeline {
         stage('Deploy API to EC2') {
             steps {
                 sshagent(credentials: ['chioma_keypair']) {
-                    sh 'scp -r * ubuntu@18.175.114.52:/var/www/api'
-                    sh 'ssh ubuntu@18.175.114.52 "sudo systemctl restart flask-api"'
+                    sh '''
+                    scp -r * ubuntu@18.175.114.52:/var/www/api
+                    ssh ubuntu@18.175.114.52 "sudo systemctl restart flask-api"
+                    '''
                 }
             }
         }
