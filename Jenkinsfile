@@ -33,7 +33,7 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 sh '''
-                cd rest_api
+                cd FlaskApp_Api
                 terraform init
                 terraform plan
                 '''
@@ -43,7 +43,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 sh '''
-                cd rest_api
+                cd FlaskApp_Api
                 terraform apply -auto-approve
                 '''
             }
