@@ -45,9 +45,9 @@ pipeline {
 
         stage('Deploy API to EC2') {
             steps {
-                sshagent(credentials: ['your-ssh-key']) {
-                    sh 'scp -r * ubuntu@your-ec2-ip:/var/www/api'
-                    sh 'ssh ubuntu@your-ec2-ip "sudo systemctl restart flask-api"'
+                sshagent(credentials: ['chioma_keypair']) {
+                    sh 'scp -r * ubuntu@18.175.114.52:/var/www/api'
+                    sh 'ssh ubuntu@18.175.114.52 "sudo systemctl restart flask-api"'
                 }
             }
         }
