@@ -43,7 +43,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 sh '''
-                cd terraform
+                cd rest_api
                 terraform apply -auto-approve
                 '''
             }
