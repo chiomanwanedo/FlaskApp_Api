@@ -35,7 +35,9 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 script {
-                    sh 'ls -l'  // Debugging: List all files in the workspace
+                    sh 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID'
+                    sh 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY'
+                    sh 'export AWS_REGION=$AWS_REGION'
                     sh 'terraform init'
                     sh 'terraform plan'
                 }
@@ -45,6 +47,9 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
+                    sh 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID'
+                    sh 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY'
+                    sh 'export AWS_REGION=$AWS_REGION'
                     sh 'terraform apply -auto-approve'
                 }
             }
@@ -61,4 +66,4 @@ pipeline {
             }
         }
     } 
-} 
+}
