@@ -13,38 +13,40 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-           steps {
-        sh '''
-        python3 -m venv venv
-        bash -c "source venv/bin/activate && pip install -r requirements.txt"
-        '''
-    }
+            steps {
+                sh '''
+                python3 -m venv venv
+                bash -c "source venv/bin/activate && pip install -r requirements.txt"
+                '''
+            }
         }
 
         stage('Run Tests') {   
-             steps {
-        sh '''
-        python3 -m venv venv
-        bash -c "source venv/bin/activate && pip install -r requirements.txt"
-        '''
-    }
+            steps {
+                sh '''
+                python3 -m venv venv
+                bash -c "source venv/bin/activate && pip install -r requirements.txt"
+                '''
+            }
         }
 
         stage('Terraform Init & Plan') {
-              steps {
-        script {
-            sh 'ls -l'  // Debugging: List all files in the workspace
-            sh 'terraform init'
-            sh 'terraform plan'
-        }
-        }
+            steps {
+                script {
+                    sh 'ls -l'  // Debugging: List all files in the workspace
+                    sh 'terraform init'
+                    sh 'terraform plan'
+                }
+            }
+        } 
 
         stage('Terraform Apply') {
             steps {
-        script {
-            sh 'terraform apply -auto-approve'
-        }
-        }
+                script {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        } 
 
         stage('Deploy API to EC2') {
             steps {
@@ -56,5 +58,5 @@ pipeline {
                 }
             }
         }
-    }
-}
+    } 
+} 
