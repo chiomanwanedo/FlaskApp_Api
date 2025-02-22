@@ -17,24 +17,38 @@ pipeline {
                 script {
                     withAWS(credentials: 'aws_jenkins', region: 'eu-west-2') {
                         sh '''
+                        rm -f .terraform.lock.hcl
                         terraform init
-                        terraform plan
+                        terraform validate
+                        terraform fmt
+                        terraform plan -out=tfplan
                         '''
                     }
                 }
             }
-        } 
+        }
 
         stage('Terraform Apply') {
             steps {
                 script {
                     withAWS(credentials: 'aws_jenkins', region: 'eu-west-2') {
                         sh '''
-                        terraform apply -auto-approve
+                        terraform apply -auto-approve tfplan
                         '''
                     }
                 }
             }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
         }
     }
 }
