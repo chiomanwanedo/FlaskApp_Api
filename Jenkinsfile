@@ -15,38 +15,39 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'aws_jenkins', variable: 'AWS_ACCESS_KEY_ID'),
-                        string(credentialsId: 'aws_jenkins', variable: 'AWS_SECRET_ACCESS_KEY')
-                    ]) {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_jenkins']]) {
                         sh '''
-                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        export AWS_REGION=eu-west-2
                         terraform init
-                        terraform plan
+                        terraform validate
+                        terraform fmt
+                        terraform plan -out=tfplan
                         '''
                     }
                 }
             }
-        } 
+        }
 
         stage('Terraform Apply') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'aws_jenkins', variable: 'AWS_ACCESS_KEY_ID'),
-                        string(credentialsId: 'aws_jenkins', variable: 'AWS_SECRET_ACCESS_KEY')
-                    ]) {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_jenkins']]) {
                         sh '''
-                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        export AWS_REGION=eu-west-2
-                        terraform apply -auto-approve
+                        terraform apply -auto-approve tfplan
                         '''
                     }
                 }
             }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
         }
     }
 }
