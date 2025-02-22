@@ -15,39 +15,26 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_jenkins']]) {
+                    withAWS(credentials: 'aws_jenkins', region: 'eu-west-2') {
                         sh '''
                         terraform init
-                        terraform validate
-                        terraform fmt
-                        terraform plan -out=tfplan
+                        terraform plan
                         '''
                     }
                 }
             }
-        }
+        } 
 
         stage('Terraform Apply') {
             steps {
                 script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_jenkins']]) {
+                    withAWS(credentials: 'aws_jenkins', region: 'eu-west-2') {
                         sh '''
-                        terraform apply -auto-approve tfplan
+                        terraform apply -auto-approve
                         '''
                     }
                 }
             }
-        }
-    }
-    post {
-        always {
-            cleanWs()
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
-        success {
-            echo 'Pipeline completed successfully!'
         }
     }
 }
