@@ -33,16 +33,24 @@ pipeline {
                 script {
                     withAWS(credentials: 'aws_jenkins', region: 'eu-west-2') {
                         sh '''
-                        terraform apply -auto-approve tfplan
+                        if [ -f "tfplan" ]; then
+                            terraform apply -auto-approve tfplan
+                        else
+                            echo "Error: tfplan file not found!"
+                            exit 1
+                        fi
                         '''
                     }
                 }
             }
         }
     }
+    
     post {
         always {
-            cleanWs()
+            node {
+                cleanWs()
+            }
         }
         failure {
             echo 'Pipeline failed!'
